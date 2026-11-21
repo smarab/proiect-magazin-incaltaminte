@@ -1,0 +1,15 @@
+{% extends "website_magazin/baza.html" %}
+<!-- LABORATORUL 2 - TASK 2, CERINTA 7: Extinderea template-ului baza.html -->
+
+{% block continut %}
+    <!-- LABORATORUL 2 - TASK 2, CERINTA 6: Detaliile accesarii cu footer comun -->
+    <h2>Detalii accesare</h2>
+
+    <p>ID: {{ accesare.id }}</p>
+    <p>IP client: {{ accesare.ip_client }}</p>
+    <p>URL: {{ accesare.string_url }}</p>
+    <p>Pagina: {{ accesare.pagina }}</p>
+    <p>Data:</p>
+    {{ accesare.calculeaza_data|safe }} <!-- sa nu introducem p in p -->
+    <p>Parametri: {{ accesare.lista_parametri }}</p>
+{% endblock %}

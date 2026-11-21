@@ -1,0 +1,74 @@
+<!-- LABORATORUL 2 - TASK 2, CERINTA 2: Template general cu header, main si footer -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KomfortSchuhe</title>
+    {% comment %} <link rel="stylesheet" href="{% static 'website_magazin/nav.css' %}"> {% endcomment %}
+    <!-- LABORATORUL 2 - TASK 2, CERINTA 8: Organizarea fisierelor statice in subfoldere -->
+    <link rel="stylesheet" href="{% static 'website_magazin/css/nav.css' %}">
+</head>
+
+<body>
+
+<header>
+    <h1>KomfortSchuhe</h1>
+
+    <!-- LABORATORUL 2 - TASK 2, CERINTA 4: Meniu cu submeniuri si linkuri generate cu url -->
+    <nav>
+        <ul>
+            <li>
+                <details>
+                    <summary>Pagina principala</summary>
+                    <ul>
+                        <li><a href="{% url 'index' %}">Acasa</a></li>
+                        <li><a href="{% url 'index' %}#prezentare">Prezentarea magazinului</a></li>
+                        <li><a href="{% url 'index' %}#oferte">Oferte speciale</a></li>
+                    </ul>
+                </details>
+            </li>
+
+            <li><a href="{% url 'produse' %}">Produse</a></li>
+
+            <li>
+                <details>
+                    <summary>Informatii</summary>
+                    <ul>
+                        <li><a href="{% url 'despre' %}">Despre</a></li>
+                        <li><a href="{% url 'istoric' %}">Istoric</a></li>
+                        <li><a href="{% url 'ghid_marimi' %}">Ghid de marimi</a></li>
+                        <li><a href="{% url 'livrare_retururi' %}">Livrare si retururi</a></li>
+                    </ul>
+                </details>
+            </li>
+
+            <li><a href="{% url 'contact' %}">Contact</a></li>
+            <li><a href="{% url 'cos_virtual' %}">Cos virtual</a></li>
+        </ul>
+    </nav>
+</header>
+
+    <main>
+        {% block continut %}
+        {% endblock %}
+    </main>
+
+
+<!-- LABORATORUL 2 - TASK 2, CERINTA 6: Footer cu IP, copyright si datele firmei -->
+<footer>
+    <p>{{ copyright }}</p>
+
+    <p>Firma: {{ date_firma.nume }}</p>
+    <p>Anul infiintarii: {{ date_firma.an_infiintare }}</p>
+    <p>Telefon: {{ date_firma.telefon }}</p>
+    <p>Adresa: {{ date_firma.adresa }}</p>
+    <p>Email: {{ date_firma.email }}</p>
+    <p>Program: {{ date_firma.program }}</p>
+
+    <p>IP utilizator: {{ ip_client }}</p>
+</footer>
+
+</body>
+</html>

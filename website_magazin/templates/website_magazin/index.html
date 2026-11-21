@@ -1,0 +1,21 @@
+{% extends "website_magazin/baza.html" %}
+{% load static %}
+
+<!-- LABORATORUL 2 - TASK 2, CERINTA 3: Template pentru pagina principala -->
+<!-- LABORATORUL 2 - TASK 2, CERINTA 7: Extinderea template-ului baza.html -->
+
+{% block continut %}
+    <section id="prezentare">
+        <h2>Prezentarea magazinului</h2>
+        <p>KomfortSchuhe - Magazin online de incaltaminte sport pentru femei, dezvoltat folosind Python si Django</p>
+        <!-- LABORATORUL 2 - TASK 2, CERINTA 8: Imagine pentru pagina principala -->
+        <img src="{% static 'website_magazin/imagini/principal.jpg' %}"
+        alt="Incaltaminte sport pentru femei"
+        style="max-width: 100%; width: 400px; height: auto;">
+    </section>
+
+    <section id="oferte">
+        <h2>Oferte speciale</h2>
+        <p>Aici vor fi prezentate ofertele speciale ale magazinului KomfortSchuhe.</p>
+    </section>
+{% endblock %}

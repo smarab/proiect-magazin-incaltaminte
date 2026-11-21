@@ -1,0 +1,9 @@
+{% extends "website_magazin/baza.html" %}
+<!-- LABORATORUL 2 - TASK 2, CERINTA 7: Extinderea template-ului baza.html -->
+
+{% block continut %}
+    <!-- LABORATORUL 2 - TASK 2, CERINTA 6: Pagina info cu footer comun -->
+    <h1>Informatii despre server</h1>
+    <h2>Data si ora</h2>
+    {{ data_afisata|safe }} <!-- interpretam textul ca html -->
+{% endblock %}

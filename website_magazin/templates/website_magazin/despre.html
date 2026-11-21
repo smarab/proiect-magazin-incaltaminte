@@ -1,0 +1,12 @@
+{% extends "website_magazin/baza.html" %}
+{% load static %}
+
+{% block continut %}
+    <!-- LABORATORUL 2 - TASK 2, CERINTA 8: Imagine pentru pagina despre -->
+    <h2>{{ titlu }}</h2>
+    <p>{{ descriere }}</p>
+
+    <img src="{% static 'website_magazin/imagini/despre.jpg' %}"
+        alt="Incaltaminte sport pentru femei"
+        style="max-width: 100%; width: 400px; height: auto;">
+{% endblock %}

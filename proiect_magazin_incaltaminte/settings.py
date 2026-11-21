@@ -64,6 +64,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                # LABORATORUL 2 - TASK 2, CERINTA 6: Inregistrarea context processorului
+                'website_magazin.context_processors.date_firma',
             ],
         },
     },
@@ -127,4 +129,14 @@ MAILERS = {
     'default': {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
+}
+
+# LABORATORUL 2 - TASK 2, CERINTA 6: Datele firmei KomfortSchuhe
+DATE_FIRMA = {
+    "nume": "KomfortSchuhe",
+    "an_infiintare": 2026,
+    "telefon": "0798 765 432",
+    "adresa": "Strada Pantofiorilor nr. 1, Bucuresti",
+    "email": "komfortschuhe@gmail.com",
+    "program": "Luni - Vineri, 09:00 - 18:00"
 }

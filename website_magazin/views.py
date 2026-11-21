@@ -10,6 +10,9 @@ from urllib.parse import urlparse
 zile = ["Luni", "Marti", "Miercuri", "Joi", "Vineri", "Sambata", "Duminica"]
 luni = ["Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie", "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"]
 
+# LABORATORUL 2 - TASK 1, CERINTA 1: Lista pentru memorarea accesarilor
+accesari = []
+
 
 # LABORATORUL 1 - CERINTA 4: Clasa Accesare
 class Accesare:
@@ -96,13 +99,13 @@ def index(request):
     parametri = request.GET.dict()
     accesare = Accesare(url, ip_client, parametri)
 
+    # LABORATORUL 2 - TASK 1, CERINTA 1: Salvarea accesarii in lista
+    accesari.append(accesare)
+
     # LABORATORUL 1 - CERINTA 9: Afisarea accesarii in consola
     print(accesare)
 
-    return HttpResponse(
-        "KomfortSchuhe - Magazin online de incaltaminte sport"
-        " pentru femei, dezvoltat folosind Python si Django"
-    )
+    return render(request, "website_magazin/index.html")
 
 
 # LABORATORUL 1 - CERINTA 3: Data si ora
@@ -121,6 +124,9 @@ def info(request):
     data = request.GET.get("data", "")
 
     accesare = Accesare(url, ip_client, parametri)
+
+    # LABORATORUL 2 - TASK 1, CERINTA 1: Salvarea accesarii paginii info in lista
+    accesari.append(accesare)
 
     # LABORATORUL 1 - CERINTA 9: Afisarea accesarii in consola
     print(accesare)
@@ -144,16 +150,245 @@ def info(request):
     # LABORATORUL 1 - CERINTA 7: Varianta veche din HttpResponse
     # <p>{data_afisata} - Ora: {accesare.data.hour:02d}:{accesare.data.minute:02d}:{accesare.data.second:02d}</p>
 
-    return HttpResponse(f"""
-        <html>
-            <head>
-                <title>Informatii despre server</title>
-            </head>
-            <body>
-                <h1>Informatii despre server</h1>
-                <h2>Data si ora</h2>
-                <!-- LABORATORUL 1 - CERINTA 10: Varianta noua -->
-                {data_afisata}
-            </body>
-        </html>
-    """)
+    # return HttpResponse(f"""
+    #     <html>
+    #         <head>
+    #             <title>Informatii despre server</title>
+    #         </head>
+    #         <body>
+    #             <h1>Informatii despre server</h1>
+    #             <h2>Data si ora</h2>
+    #             <!-- LABORATORUL 1 - CERINTA 10: Varianta noua -->
+    #             {data_afisata}
+    #         </body>
+    #     </html>
+    # """)
+
+    # LABORATORUL 2 - TASK 2, CERINTA 6: Afisarea paginii info cu footer comun
+    return render(request, "website_magazin/info.html", {
+        "data_afisata": data_afisata
+    })
+
+
+# LABORATORUL 2 - TASK 1, CERINTA 1: Jurnalul accesarilor si filtrarea dupa ultimele
+def log(request):
+
+    url = request.build_absolute_uri()
+
+    parametri = request.GET.dict()
+    ip_client = request.ip_client
+    accesare = Accesare(url, ip_client, parametri)
+    accesari.append(accesare)
+
+    continut = ""
+    ultimele = request.GET.get("ultimele", "")
+
+    try:
+        if "ultimele" in request.GET:
+            ultimele = int(ultimele)
+    except ValueError:
+        # return HttpResponse("Parametrul ultimele trebuie sa fie un numar intreg")
+        # LABORATORUL 2 - TASK 2, CERINTA 6: Afisarea erorii pentru ultimele nenumeric cu footer comun
+        return render(request, "website_magazin/log.html", {
+            "continut": "Parametrul ultimele trebuie sa fie un numar intreg"
+        })
+
+    if ultimele != "" and ultimele < 0:
+        # return HttpResponse("Numarul de accesari nu poate fi negativ")
+        # LABORATORUL 2 - TASK 2, CERINTA 6: Afisarea erorii pentru ultimele negativ cu footer comun
+        return render(request, "website_magazin/log.html", {
+            "continut": "Numarul de accesari nu poate fi negativ"
+        })
+
+    accesari_de_afisat = accesari
+
+    # LABORATORUL 2 - TASK 1, CERINTA 2: Numarul accesarilor si filtrarea dupa ID-uri
+    iduri = request.GET.getlist("iduri")
+    dubluri = request.GET.get("dubluri", "false")
+
+    if "iduri" in request.GET:
+        lista_iduri = []
+
+        for grup in iduri:
+            for id_accesare in grup.split(","):
+                try:
+                    id_accesare = int(id_accesare)
+                except ValueError:
+                    # return HttpResponse("Parametrul iduri trebuie sa contina doar numere intregi")
+                    # LABORATORUL 2 - TASK 2, CERINTA 6: Afisarea erorii pentru iduri nenumeric cu footer comun
+                    return render(request, "website_magazin/log.html", {
+                        "continut": "Parametrul iduri trebuie sa contina doar numere intregi"
+                    })
+
+                if id_accesare not in lista_iduri or dubluri == "true":
+                    lista_iduri.append(id_accesare)
+
+        accesari_selectate = []
+
+        for id_cautat in lista_iduri:
+            for accesare in accesari:
+                if id_cautat == accesare.id:
+                    accesari_selectate.append(accesare)
+                    break
+
+        accesari_de_afisat = accesari_selectate
+
+    numar_disponibile = len(accesari_de_afisat)
+
+    if ultimele != "":
+        if ultimele == 0:
+            accesari_de_afisat = []
+        else:
+            accesari_de_afisat = accesari_de_afisat[-ultimele:]
+
+    if "tabel" not in request.GET:
+        for accesare in accesari_de_afisat:
+            continut += str(accesare).replace("\n", "<br>") + "<hr>"
+
+    if request.GET.get("accesari") == "nr":
+        continut += f"<section><h2>Numar total de accesari</h2><p>{len(accesari)}</p></section>"
+
+    # LABORATORUL 2 - TASK 1, CERINTA 3: Detaliile accesarilor si parametrii cererii
+    if request.GET.get("accesari") == "detalii":
+        continut += "<ul>"
+
+        for accesare in accesari:
+            continut += f"<li>{accesare.calculeaza_data()}</li>"
+
+        continut += "</ul>"
+
+    continut += "<h2>Parametri</h2>"
+    continut += f"<p>Numar parametri: {len(request.GET)}</p>"
+    continut += f"<p>Nume parametri: {', '.join(request.GET.keys())}</p>"
+
+    # LABORATORUL 2 - TASK 1, CERINTA 4: Afisarea accesarilor intr-un tabel HTML
+    tabel = request.GET.get("tabel")
+
+    if "tabel" in request.GET:
+        if tabel == "tot":
+            coloane = ["id", "url", "ip_client", "parametri", "data"]
+        else:
+            coloane = tabel.split(",")
+
+        continut += "<table>"
+        continut += "<tr>"
+
+        for coloana in coloane:
+            continut += f"<th>{coloana}</th>"
+
+        continut += "</tr>"
+
+        for accesare in accesari_de_afisat:
+            continut += "<tr>"
+
+            for coloana in coloane:
+                continut += f"<td>{getattr(accesare, coloana)}</td>"
+
+            continut += "</tr>"
+
+        continut += "</table>"
+
+    # LABORATORUL 2 - TASK 1, CERINTA 5: Pagina cea mai accesata si cea mai putin
+    numar_accesari = {
+    "/": 0,
+    "/info": 0,
+    "/log": 0,
+    "/istoric": 0,
+    "/despre": 0
+    }
+
+    for accesare in accesari:
+        pagina = accesare.pagina()
+
+        if pagina in numar_accesari:
+            numar_accesari[pagina] += 1
+        else:
+            numar_accesari[pagina] = 1
+
+    if numar_accesari:
+        pagina_maxima = max(numar_accesari, key=numar_accesari.get)
+        pagina_minima = min(numar_accesari, key=numar_accesari.get)
+
+        continut += f"<p>Pagina cea mai accesata: {pagina_maxima}</p>"
+        continut += f"<p>Pagina cea mai putin accesata: {pagina_minima}</p>"
+
+    if ultimele != "" and ultimele > numar_disponibile:
+        continut += f"Exista doar {numar_disponibile} accesari fata de {ultimele} accesari cerute"
+
+    # LABORATORUL 2 - TASK 2, CERINTA 6: Afisarea jurnalului cu footer comun
+    return render(request, "website_magazin/log.html", {
+        "continut": continut
+})
+
+# LABORATORUL 2 - TASK 1, CERINTA 5: Paginile istoric si despre
+def istoric(request):
+    url = request.build_absolute_uri()
+    ip_client = request.ip_client
+    parametri = request.GET.dict()
+    accesare = Accesare(url, ip_client, parametri)
+    accesari.append(accesare)
+
+    # LABORATORUL 2 - TASK 2, CERINTA 6: Afisarea paginii istoric cu footer comun
+    return render(request, "website_magazin/pagina.html", {
+        "titlu": "Istoric KomfortSchuhe",
+        "descriere": "KomfortSchuhe este un magazin online de incaltaminte sport, creat pentru a oferi modele confortabile pentru femei. Aceasta pagina va prezenta evolutia si povestea magazinului."
+    })
+
+
+def despre(request):
+    url = request.build_absolute_uri()
+    ip_client = request.ip_client
+    parametri = request.GET.dict()
+    accesare = Accesare(url, ip_client, parametri)
+    accesari.append(accesare)
+
+    # return HttpResponse("""
+    #     <h1>Despre KomfortSchuhe</h1>
+    #     <p>KomfortSchuhe este un magazin online specializat in incaltaminte sport
+    #     pentru femei. Ne propunem sa oferim produse care imbina
+    #     confortul, functionalitatea si stilul.</p>
+    # """)
+
+    # LABORATORUL 2 - TASK 2, CERINTA 6: Afisarea paginii despre cu footer comun
+    return render(request, "website_magazin/despre.html", {
+        "titlu": "Despre KomfortSchuhe",
+        "descriere": "KomfortSchuhe este un magazin online specializat in incaltaminte sport pentru femei. Ne propunem sa oferim produse care imbina confortul, functionalitatea si stilul."
+    })
+
+# LABORATORUL 2 - TASK 1, CERINTA 5: Afisarea detaliilor unei accesari dupa ID
+def detalii_accesare(request, id):
+    url = request.build_absolute_uri()
+    ip_client = request.ip_client
+    parametri = request.GET.dict()
+    accesare = Accesare(url, ip_client, parametri)
+    accesari.append(accesare)
+
+    id = int(id)
+
+    # LABORATORUL 2 - TASK 2, CERINTA 6: Afisarea detaliilor cu footer comun
+    for accesare in accesari:
+        if accesare.id == id:
+            return render(request, "website_magazin/accesare.html", {
+                "accesare": accesare
+            })
+
+    return render(request, "website_magazin/pagina.html", {
+        "titlu": "Accesare inexistenta",
+        "descriere": "Accesarea nu exista"
+    })
+
+# LABORATORUL 2 - TASK 2, CERINTA 4: Pagini care vor fi implementate ulterior
+def pagina_in_constructie(request):
+    url = request.build_absolute_uri()
+    ip_client = request.ip_client
+    parametri = request.GET.dict()
+    accesare = Accesare(url, ip_client, parametri)
+    accesari.append(accesare)
+
+    # # LABORATORUL 2 - TASK 2, CERINTA 6: Footer comun pentru paginile temporare
+    # return render(request, "website_magazin/pagina.html", {
+    #     "titlu": "Pagina in constructie",
+    #     "descriere": "Pagina va fi implementata ulterior."
+    # })
+    # LABORATORUL 2 - TASK 2, CERINTA 10: Afisarea template-ului in_lucru.html
+    return render(request, "website_magazin/in_lucru.html")
